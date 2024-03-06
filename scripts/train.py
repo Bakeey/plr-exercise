@@ -60,7 +60,6 @@ def test(model, device, test_loader, epoch):
     return test_loss
 
 
-
 def main():
     # wandb initialization
     training_loss = 0.0
@@ -111,11 +110,12 @@ def main():
     parser.add_argument("--save-model", action="store_true", default=False, help="For Saving the current Model")
     args = parser.parse_args()
 
-        # Optuna setup
-    study = optuna.create_study(direction='minimize')
+    # Optuna setup
+    study = optuna.create_study(direction="minimize")
+
     def objective(trial):
-        lr = trial.suggest_loguniform('lr', 1e-5, 1e-1)
-        epochs = trial.suggest_int('epochs', 1, 20)
+        lr = trial.suggest_loguniform("lr", 1e-5, 1e-1)
+        epochs = trial.suggest_int("epochs", 1, 20)
         use_cuda = not args.no_cuda and torch.cuda.is_available()
 
         torch.manual_seed(args.seed)
@@ -140,10 +140,10 @@ def main():
 
         model = Net().to(device)
         optimizer = optim.Adam(model.parameters(), lr=args.lr)
-        
+
         for epoch in range(1, epochs + 1):
             train(args, model, device, train_loader, optimizer, epoch)
-            test_loss = test(model, device, test_loader, epoch)  
+            test_loss = test(model, device, test_loader, epoch)
 
         """
         scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
@@ -156,12 +156,12 @@ def main():
         if args.save_model:
             torch.save(model.state_dict(), "mnist_cnn.pt")
         return test_loss
-    
+
     study.optimize(objective, n_trials=100)
     print("Best hyperparameters: ", study.best_params)
 
-
     run.finish()
+
 
 if __name__ == "__main__":
     main()
