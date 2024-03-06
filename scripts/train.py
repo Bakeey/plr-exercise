@@ -58,21 +58,20 @@ def test(model, device, test_loader, epoch):
 
 
 def main():
-
     # wandb initialization
-    training_loss = 0.
-    test_loss = 0.
+    training_loss = 0.0
+    test_loss = 0.0
 
     wandb.login()
     run = wandb.init(
-    # Set the project where this run will be logged
-    project="plr-exercise",
-    # Track hyperparameters and run metadata
-    config={
-        "training_loss": training_loss,
-        "test_loss": test_loss,
-    },
-    settings=wandb.Settings(code_dir=".")
+        # Set the project where this run will be logged
+        project="plr-exercise",
+        # Track hyperparameters and run metadata
+        config={
+            "training_loss": training_loss,
+            "test_loss": test_loss,
+        },
+        settings=wandb.Settings(code_dir="."),
     )
 
     """
