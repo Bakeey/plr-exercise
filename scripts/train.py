@@ -63,7 +63,7 @@ def test(model, device, test_loader, epoch):
         float: The average loss of the model on the test dataset.
 
     Logs the test loss to wandb and prints the test accuracy.
-    """ 
+    """
     model.eval()
     test_loss = 0
     correct = 0
@@ -156,7 +156,7 @@ def main():
 
         Returns:
             float: The test loss of the model trained with the suggested hyperparameters.
-        
+
         Suggests learning rates and epochs, trains the model on the MNIST dataset,
         and evaluates it to return the test loss.
         """

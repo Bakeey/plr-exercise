@@ -22,6 +22,7 @@ class Net(nn.Module):
         fc1 (nn.Linear): First fully connected layer.
         fc2 (nn.Linear): Second fully connected layer, producing output for 10 classes.
     """
+
     def __init__(self):
         """
         Initializes the CNN model components and layers.
