@@ -13,6 +13,19 @@ from plr_exercise.models.cnn import Net
 
 
 def train(args, model, device, train_loader, optimizer, epoch):
+    """
+    Trains the model for a single epoch.
+
+    Args:
+        args: Command-line arguments.
+        model (torch.nn.Module): The model to train.
+        device (torch.device): The device to train the model on.
+        train_loader (DataLoader): DataLoader for the training data.
+        optimizer (torch.optim.Optimizer): Optimizer for model parameters.
+        epoch (int): Current epoch number.
+
+    Prints training loss and logs it to wandb at intervals specified by args.log_interval.
+    """
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
         data, target = data.to(device), target.to(device)
@@ -37,6 +50,20 @@ def train(args, model, device, train_loader, optimizer, epoch):
 
 
 def test(model, device, test_loader, epoch):
+    """
+    Evaluates the model on the test dataset.
+
+    Args:
+        model (torch.nn.Module): The model to evaluate.
+        device (torch.device): The device to evaluate the model on.
+        test_loader (DataLoader): DataLoader for the test data.
+        epoch (int): Current epoch number.
+
+    Returns:
+        float: The average loss of the model on the test dataset.
+
+    Logs the test loss to wandb and prints the test accuracy.
+    """ 
     model.eval()
     test_loss = 0
     correct = 0
@@ -61,6 +88,13 @@ def test(model, device, test_loader, epoch):
 
 
 def main():
+    """
+    Main function to run the training and optimization process.
+
+    Initializes wandb, sets up command-line arguments for training parameters,
+    and uses Optuna to find the best learning rate and number of epochs.
+    Logs the model's source code as an artifact in wandb.
+    """
     # wandb initialization
     training_loss = 0.0
     test_loss = 0.0
@@ -114,6 +148,18 @@ def main():
     study = optuna.create_study(direction="minimize")
 
     def objective(trial):
+        """
+        Objective function for Optuna study to optimize hyperparameters.
+
+        Args:
+            trial (optuna.trial.Trial): A trial from the study.
+
+        Returns:
+            float: The test loss of the model trained with the suggested hyperparameters.
+        
+        Suggests learning rates and epochs, trains the model on the MNIST dataset,
+        and evaluates it to return the test loss.
+        """
         lr = trial.suggest_loguniform("lr", 1e-5, 1e-1)
         epochs = trial.suggest_int("epochs", 1, 20)
         use_cuda = not args.no_cuda and torch.cuda.is_available()
