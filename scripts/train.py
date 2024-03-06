@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+import wandb
 from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
 from plr_exercise.models.cnn import Net
@@ -28,6 +29,7 @@ def train(args, model, device, train_loader, optimizer, epoch):
                     loss.item(),
                 )
             )
+            wandb.log({"training_loss": loss.item()})
             if args.dry_run:
                 break
 
@@ -46,6 +48,7 @@ def test(model, device, test_loader, epoch):
             correct += pred.eq(target.view_as(pred)).sum().item()
 
     test_loss /= len(test_loader.dataset)
+    wandb.log({"test_loss": test_loss})
 
     print(
         "\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n".format(
@@ -55,6 +58,32 @@ def test(model, device, test_loader, epoch):
 
 
 def main():
+
+    # wandb initialization
+    training_loss = 0.
+    test_loss = 0.
+
+    wandb.login()
+    run = wandb.init(
+    # Set the project where this run will be logged
+    project="plr-exercise",
+    # Track hyperparameters and run metadata
+    config={
+        "training_loss": training_loss,
+        "test_loss": test_loss,
+    },
+    settings=wandb.Settings(code_dir=".")
+    )
+
+    """
+    # log the code as artifact
+    code_artifact = wandb.Artifact('source-code', type='code')
+    # Add a directory or specific files to the artifact
+    artifact = wandb.Artifact('source-code', type='code')
+    artifact.add_file('./scripts/train.py')
+    run.log_artifact(artifact)
+    """
+
     # Training settings
     parser = argparse.ArgumentParser(description="PyTorch MNIST Example")
     parser.add_argument(
@@ -111,6 +140,8 @@ def main():
 
     if args.save_model:
         torch.save(model.state_dict(), "mnist_cnn.pt")
+
+    run.finish()
 
 
 if __name__ == "__main__":
